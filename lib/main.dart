@@ -1,25 +1,35 @@
-
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fluttercrypto/dependency_injection.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:fluttercrypto/home_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc_crypto/blocs/crypto/crypto_bloc.dart';
+import 'package:flutter_bloc_crypto/repositories/crypto_repository.dart';
+import 'package:flutter_bloc_crypto/screens/home_screen.dart';
 
-void main() async {
-  Injector.configure(Flavor.PROD);
-  runApp(new MyApp());
+void main() {
+  EquatableConfig.stringify = kDebugMode;
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      theme: new ThemeData(
-          primarySwatch: Colors.pink,
-          primaryColor: defaultTargetPlatform == TargetPlatform.iOS
-              ? Colors.grey[100]
-              : null),
-      home: new HomePage(),
+    return RepositoryProvider(
+      create: (context) => CryptoRepository(),
+      child: MaterialApp(
+        title: 'Flutter Crypto App',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primaryColor: Colors.black,
+          accentColor: Colors.tealAccent,
+        ),
+        home: BlocProvider(
+          create: (context) => CryptoBloc(
+            cryptoRepository: context.read<CryptoRepository>(),
+          )..add(AppStarted()),
+          child: HomeScreen(),
+        ),
+      ),
     );
   }
 }
